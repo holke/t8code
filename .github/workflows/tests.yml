@@ -19,26 +19,46 @@ jobs:
     steps:
 # Setup and bootstrap
     - uses: actions/checkout@v1
-    - name: Install mpich
-      run: sudo apt-get update && sudo apt-get install libmpich-dev
     - name: init submodules
       run: git submodule init
     - name: update submodules
       run: git submodule update
+#    - name: install indent
+#      run: sudo apt-get install indent
+#    - name: indent check
+#      run: cd scripts && ./check_if_all_files_indented.scp > indentErrorLog.txt
+    - name: OnFailUploadOutput
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: indentErrorLog.txt
+        path: scripts/indentErrorLog.txt
     - name: bootstrap
       run: ./bootstrap
+# install MPI
+    - name: Install mpich
+      run: sudo apt-get update && sudo apt-get install libmpich-dev
 # configure and test with MPI (release mode)
     - name: check release mode
       run: echo "Checking release mode (MPI)"
     - name: configure
       run: ./configure --enable-mpi --without-blas
-    - name: OnFailPrintLog
+    - name: OnFailUploadLog
       if: failure()
-      run: cat config.log
+      uses: actions/upload-artifact@v1
+      with:
+        name: config_release_MPI.log
+        path: config.log
     - name: make
       run: make -j V=0
     - name: make check
       run: make check -j4 V=0
+    - name: OnFailUploadLog
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: test-suite_release_MPI.log
+        path: test-suite.log
     - name: clean up
       run: make distclean
 # configure and test with MPI (debug mode)
@@ -46,13 +66,22 @@ jobs:
       run: echo "Checking debug mode"
     - name: configure
       run: ./configure --enable-mpi --without-blas --enable-debug
-    - name: OnFailPrintLog
+    - name: OnFailUploadLog
       if: failure()
-      run: cat config.log
+      uses: actions/upload-artifact@v1
+      with:
+        name: config_debug_MPI.log
+        path: config.log
     - name: make
       run: make -j V=0
     - name: make check
       run: make check -j4 V=0
+    - name: OnFailUploadLog
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: test-suite_debug_MPI.log
+        path: test-suite.log
     - name: clean up
       run: make distclean
 # configure and test with MPI (C++ compiler only, release mode)
@@ -60,13 +89,22 @@ jobs:
       run: echo "Checking C++, release mode (MPI)"
     - name: configure
       run: ./configure CC=mpicxx CXX=mpicxx --enable-mpi --without-blas --enable-debug
-    - name: OnFailPrintLog
+    - name: OnFailUploadLog
       if: failure()
-      run: cat config.log
+      uses: actions/upload-artifact@v1
+      with:
+        name: config_release_MPI_CXX.log
+        path: config.log
     - name: make
       run: make -j V=0
     - name: make check
       run: make check -j4 V=0
+    - name: OnFailUploadLog
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: test-suite_release_MPI_cxx.log
+        path: test-suite.log
     - name: clean up
       run: make distclean
 # configure and test serial (release mode)
@@ -74,13 +112,22 @@ jobs:
       run: echo "Checking serial release mode"
     - name: configure
       run: ./configure --without-blas
-    - name: OnFailPrintLog
+    - name: OnFailUploadLog
       if: failure()
-      run: cat config.log
+      uses: actions/upload-artifact@v1
+      with:
+        name: config_release_serial.log
+        path: config.log
     - name: make
       run: make -j V=0
     - name: make check
       run: make check -j4 V=0
+    - name: OnFailUploadLog
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: test-suite_release_serial.log
+        path: test-suite.log
     - name: clean up
       run: make distclean
 # configure and test serial (debug mode)
@@ -88,13 +135,22 @@ jobs:
       run: echo "Checking debugging mode"
     - name: configure
       run: ./configure --without-blas --enable-debug
-    - name: OnFailPrintLog
+    - name: OnFailUploadLog
       if: failure()
-      run: cat config.log
+      uses: actions/upload-artifact@v1
+      with:
+        name: config_debug_serial.log
+        path: config.log
     - name: make
       run: make -j V=0
     - name: make check
       run: make check -j4 V=0
+    - name: OnFailUploadLog
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: test-suite_debug_serial.log
+        path: test-suite.log
     - name: clean up
       run: make distclean
 # configure and test with MPI and netcdf
