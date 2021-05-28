@@ -124,19 +124,27 @@ main (int argc, char **argv)
       }
     }
 
+    int* shape = T8_ALLOC(int, 4);
+    shape[0] = x_length;
+    shape[1] = y_length;
+    shape[2] = 1;
+
+    t8_messy_coarsen_t *coarsen = t8_messy_new_coarsen_config("mean_higher", "vm1", 0, 0.8, nullptr);
+    t8_messy_interpolate_t *interpolation = t8_messy_new_interpolate_config("mean", nullptr);
+
     /* initialize forest and data chunk */
-    t8_messy_data_t* messy = t8_messy_initialize("test", "XYZ", 0, 0, x_length, y_length, 1, num_dims);
+    t8_messy_data_t* messy = t8_messy_initialize("test", "XYZ", shape, 0, 0, num_dims, -1.0, 0.0, coarsen, interpolation);
 
     /* set data for every dimension */
     //char name[BUFSIZ];
 
     t8_messy_gaussian(data, x_length, y_length);
     //sprintf(name, "gaussian");
-    t8_messy_add_dimension(messy, "gaussian", data);
+    // t8_messy_add_dimension(messy, "gaussian", data);
     
-    t8_messy_sine_2d(data, x_length, y_length);
+    // t8_messy_sine_2d(data, x_length, y_length);
     //sprintf(name, );
-    t8_messy_add_dimension(messy, "sine_2d", data);
+    // t8_messy_add_dimension(messy, "sine_2d", data);
 
     /* bring input data into SFC format */
     t8_messy_apply_sfc(messy);
@@ -148,7 +156,7 @@ main (int argc, char **argv)
     // coarsen_config->func = custom_coarsening;
     coarsen_config->method = T8_MESSY_COARSEN_THRESHOLD_MIN_HIGHER;
     coarsen_config->z_layer = 0;
-    coarsen_config->dimension = "gaussian";
+    coarsen_config->tracer = "gaussian";
     coarsen_config->threshold = 0.8;
 
     //interpolate_config->method = T8_MESSY_INTERPOLATE_MEAN;
