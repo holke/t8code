@@ -41,10 +41,10 @@ on:
     branches:
       - master
       - develop
-  workflow_dispatch: # Be able to trigger this manually on github.com
-  # Run every night at 15:27 UTC
+  # Run every day at 15:29 UTC
   schedule:
-      - cron:  '27 15 * * *'
+      - cron: '29 15 * * *'
+  workflow_dispatch: # Be able to trigger this manually on github.com
 
 jobs:
   build:
